@@ -13,48 +13,36 @@ public class Client {
     public static void main(String args[]) throws IOException{
 
         //int portArg = 0;
-        if(args.length < 4){
+        if(args.length < 3){
             System.out.println("Usage: Client <host_name> <port_number> <oper> <opnd>*");
         }else{
             host = InetAddress.getByName(args[0]);
             port = Integer.parseInt(args[1]);
             operation = args[2];
             plate = args[3];
-            if(operation.equals("register")){/*plate = args[3];*/ owner = args[4];}
-            //if(operation.equals("lookup")) plate = args[3];
+            if(operation.equals("register")){owner = args[4];}
         }
-
-        /*System.out.println("Host: " + host);
-        System.out.println("Port: " + port);
-        System.out.println("Op: " + operation);
-        System.out.println("Plate: " + plate);
-        System.out.println("Owner: " + owner);*/
 
         String requestString = operation + " " + plate;
         if(operation.equals("register")) requestString += " "+ owner;
-
-        System.out.println("request " + requestString);
-
+        System.out.println("REQUEST: " + requestString);
 
         //send request
         DatagramSocket socket = new DatagramSocket();
         byte[] request = requestString.getBytes();
         DatagramPacket packet = new DatagramPacket(request, request.length, host, port);
         socket.send(packet);
-/*
 
         //get response
-        byte[] rbuf = new byte[sbuf.length];
-        packet = new DatagramPacket(rbuf, rbuf.length);
-        socket.receive(packet);
+        byte[] response = new byte[1024];
+        DatagramPacket packet2 = new DatagramPacket(response, response.length);
+        socket.receive(packet2);
+  
 
         //display response
-        String received = new String(packet.getData());
-        System.out.println("Recebi: " + received);
-
-*/
+        String received = new String(packet2.getData(), 0, packet2.getLength());
+        System.out.println("REPLY: " + received);
     }
-
 
 }
         
