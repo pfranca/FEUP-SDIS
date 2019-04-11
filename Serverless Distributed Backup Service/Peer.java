@@ -5,10 +5,13 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.rmi.RemoteException;
 
-public class Peer {
 
-  public static final int TTL = 1;
+
+public class Peer implements RMI {
+
+  	public static final int TTL = 1;
   	public static final int SIZE_OF_BUF = 256;
   	private static final String MSG_BEGIN = "PEER: ";
 
@@ -106,7 +109,7 @@ public class Peer {
 
   }
 
-  private static boolean checkArguments(String[] arguments) throws UnknownHostException {
+  	private static boolean checkArguments(String[] arguments) throws UnknownHostException {
   		if (arguments == null) {
   			System.out.println("Invalid arguments - Expected: [<SenderId> <McAddress>:<McPortNumber> <MdbAddress>:<MdbPortNumber> <MdrAddress>:<MdrPortNumber>");
   			return false;
@@ -118,4 +121,26 @@ public class Peer {
 
 
   		return true;
-  	}
+	}
+	  
+	public void backup(String fPath, int replication) throws RemoteException {
+		
+	}
+	
+	
+	public void delete(String fPath) throws RemoteException {
+		
+	}
+	
+	public void restore(String fPath) throws RemoteException{
+		
+	}
+	
+	public void state() throws RemoteException{
+		
+	}
+	
+	public void raclaim(int space) throws RemoteException{
+		
+	}
+}

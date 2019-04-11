@@ -3,11 +3,11 @@ import java.rmi.RemoteException;
 
 public interface RMI extends Remote {
 
-  void backup(String file_path,int rep_degree) throws RemoteException;
+  void backup(String fPath, int replication) throws RemoteException;
 
-	void delete(String file_path) throws RemoteException;
+	void delete(String fPath) throws RemoteException;
 
-	void restore(String file_path) throws RemoteException;
+	void restore(String fPath) throws RemoteException;
 
 	void state()throws RemoteException;
 
