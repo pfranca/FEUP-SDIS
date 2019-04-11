@@ -6,20 +6,29 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+import com.sun.org.apache.xpath.internal.SourceTree;
+import channels.*;
 
 
 
 public class Peer implements RMI {
 
-  	public static final int TTL = 1;
-  	public static final int SIZE_OF_BUF = 256;
-  	private static final String MSG_BEGIN = "PEER: ";
+  	//public static final int TTL = 1;
+  	//public static final int SIZE_OF_BUF = 256;
+		private static final String MSG_BEGIN = "PEER: ";
 
-  	private static int senderId;
+	private static double version;	
+	private static int peerId;
+	//private static String peer_ap;
 
-  	private static InetAddress mcAddress;
-  	private static InetAddress mdbAddress;
-  	private static InetAddress mdrAddress;
+  	private static MC mc;
+  	private static MDB mdb;
+	private static MDR mdr;
+	  
+	private static Registry rmi;
 
   	private static int interfacePortNumber;
   	private static int mcPortNumber;
@@ -28,12 +37,23 @@ public class Peer implements RMI {
 
 
   	public static void main(String[] args) throws IOException {
-  		if (!checkArguments(args))
-  			return;
+  		//if (!checkArguments(args))
+  		//	return;
 
 
   		System.out.println(MSG_BEGIN + "Peers Id: " + getSenderId());
-  		interfacePortNumber = getSenderId();
+		  interfacePortNumber = getSenderId();
+		  
+		int port = Registry.REGISTRY_PORT;
+		rmi = null;
+
+		try{
+			rmi = LocateRegistry.getRegistry(port);
+			System.out.println("dentro reg try");
+		} catch ( Exception e) {
+			e.printStackTrace();
+			System.out.println("merda");
+		}
 
   		createDir();
 
@@ -107,7 +127,7 @@ public class Peer implements RMI {
   		return mdrAddress;
   	}
 
-  }
+  
 
   	private static boolean checkArguments(String[] arguments) throws UnknownHostException {
   		if (arguments == null) {
