@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 //import common.Utils;
-//import peer.Chunk;
+import core.Chunk;
 import core.Peer;
 
 public class MsgHandler implements Runnable{

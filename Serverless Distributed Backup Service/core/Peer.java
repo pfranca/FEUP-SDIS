@@ -22,16 +22,18 @@ public class Peer implements RMI {
   	//public static final int SIZE_OF_BUF = 256;
 	//private static final String MSG_BEGIN = "PEER: ";
 
-	private static double version;	
-	private static int peerId;
-	private static String peerAp;
+	static double version;	
+	static int peerId;
+	static String peerAp;
 
-  	private static MC mc;
-  	private static MDB mdb;
-	private static MDR mdr;
-	  
+  	static MC mc;
+  	static MDB mdb;
+	static MDR mdr;
+	//----
+	//TODO: msgfoarder
+	//----  
 	//private static Registry rmi;
-
+	public static String BACKUP = "backup"
   	//private static int interfacePortNumber;
   	//private static int mcPortNumber;
   	//private static int mdbPortNumber;
