@@ -29,18 +29,13 @@ public class FileSystem implements Serializable{
         f3.mkdirs();
     }
 
-    public long getOccupied(){
-        return this.occupied;
-    }
-    public long getAvailable(){
-        return this.available;
-    }
-    public ArrayList<Chunk> getFiles(){
-        return this.files;
-    }
-    public long getTotalSpace(){
-        return (this.occupied + this.available);
-    }
+    public long getOccupied(){return this.occupied;}
+
+    public long getAvailable(){return this.available;}
+
+    public ArrayList<Chunk> getFiles(){ return this.files;}
+
+    public long getTotalSpace(){return (this.occupied + this.available);}
 
     public boolean storeChunk(Chunk c){
         
@@ -50,36 +45,26 @@ public class FileSystem implements Serializable{
         }
 
         File f2= new File(Peer.BACKUP + "/" +c.getFileId());
-        if (!(f2.exists() && f2.isDirectory()))
-        f2.mkdirs();
+        if (!(f2.exists() && f2.isDirectory()))f2.mkdirs();
 
-        FileOutputStream out;
+        FileOutputStream outStream;
 		try {
-			out = new FileOutputStream(Peer.BACKUP +"/"+c.getFileId()+"/chk"+ c.getChunkNr());
-			out.write(c.getData());
-			out.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
+			outStream = new FileOutputStream(Peer.BACKUP +"/"+c.getFileId()+"/chk"+ c.getChunkNr());
+			outStream.write(c.getData());
+			outStream.close();
+		} catch (FileNotFoundException e) {e.printStackTrace();return false;
+		} catch (IOException e) {e.printStackTrace();return false;
 		}
 		files.add(c);
 		
 		try {Peer.saveFs();} catch (IOException e) {e.printStackTrace();}
 		
 		return true;
-        
+    }
 
-    }
-    public boolean hasChunks() {
-		return this.files.size() >0;
-    }
+    public boolean hasChunks() {return this.files.size() >0;}
     
-    public boolean isStored(Chunk c) {
-		return this.files.contains(c);
-    }
+    public boolean isStored(Chunk c) {return this.files.contains(c);}
     
     public void incReplication(String chunkId, int rep) {
 		for(int i=0; i< files.size();i++) {
@@ -100,29 +85,18 @@ public class FileSystem implements Serializable{
 			}
 		}
 		
-		File file = new File(Peer.BACKUP +"/"+c.getFileId()+"/chk"+ c.getChunkNr()); //TODO: MUDAR
-		
+		File file = new File(Peer.BACKUP +"/"+c.getFileId()+"/chk"+ c.getChunkNr());
 		file.delete();
 		
-		this.occupied-= c.getData().length;
+		this.occupied = this.occupied - c.getData().length;
 		
-		
-		System.out.println("Chunk Deleted\n" + c.getId());
-		
-	
+		System.out.println("Deleted chunk -> " + c.getChunkNr());
 	}
 
 
 	public void deleteChunks(String fileId) {
-		// Use iterators
 		for(int i=0; i< files.size();i++) {
-			if(files.get(i).getFileId().equals(fileId)) {
-				deleteChunk(files.get(i));
-				i--;
-			}
+			if(files.get(i).getFileId().equals(fileId)) {i--;deleteChunk(files.get(i));}
 		}
-		
-		
 	}
-
 }

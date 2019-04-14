@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Chunk implements Serializable{
 
+  private static final long serialVersionUID = 1L;
+
   int chunkNr;
   String fileId;
   byte[] data;
@@ -17,8 +19,6 @@ public class Chunk implements Serializable{
   public static int MAX = 64*1000;
 
   private static final int NR_TO_SEND = 5;
-
-  private static final long serialVersionUID = 1L;
 
 
   public Chunk(int chknr, String fId, byte[] d, int rep){
@@ -39,39 +39,26 @@ public class Chunk implements Serializable{
     return isEqualChunk;
   }
     
-	public int getReplication() {
-		return this.replication;
-  }
+	public int getReplication() {return this.replication;}
     
-  public int getChunkNr() {
-		return this.chunkNr;
-	}
+  public int getChunkNr() {return this.chunkNr;}
 	
-	public String getFileId() {
-		return this.fileId;
-	}
+	public String getFileId() {return this.fileId;}
 	
-	public String getId() {
-		return this.id;
-  }
+	public String getId() {return this.id;}
 
-  public byte[] getData() {
-		return this.data;
-  }
+  public byte[] getData() {return this.data;}
 
-	public void setCurrentReplication(int chkCopies) {
-		this.currentReplication = chkCopies; 	
-  }
+	public void setCurrentReplication(int chkCopies) {this.currentReplication = chkCopies;}
 
-  public int getCurrentReplication() {
-		return this.currentReplication;
-  }
+  public int getCurrentReplication() {return this.currentReplication;}
   
-  public void backup(){ //TODO: ref
+  public void backup(){ 
 
     int msgSentCnt = 0;
 
     int backedUp = 0;
+
     while (backedUp < this.replication && msgSentCnt != NR_TO_SEND){
       Peer.getMdb().startSave(this.id);
 
@@ -83,6 +70,5 @@ public class Chunk implements Serializable{
       backedUp = Peer.getMdb().getSaves(this.id);
     }
     Peer.getMdb().stopSave(this.id);
-
   }
 }
