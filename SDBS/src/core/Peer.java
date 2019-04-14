@@ -19,6 +19,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import msg.MsgForwarder;
 import protocols.*;
+import java.util.ArrayList;
 
 
 
@@ -79,8 +80,8 @@ public class Peer implements RMI {
 		//----
 		ROOT += peerId + "/";
 		BACKUP = "peer" + peerId + "/backup";
-		RESTORED = "peer" + peerId + "/restored";
-		FILESYSTEM = "peer" + peerId + "/fs.data";
+		RESTORED = "peer" + peerId + "/restored/";
+		FILESYSTEM = "peer" + peerId + ".data";
 		
 		loadFs();
 
@@ -210,7 +211,24 @@ public class Peer implements RMI {
 		new Thread(init).start();
 	}
 	
-	public void state() throws RemoteException{
+	@Override
+	public void state() throws RemoteException {
+		System.out.println("\nPEER STATE");
+		System.out.println("Disk memory capacity: " + fs.getAvailable()/1000+ " KBytes");
+		System.out.println("Disk memory used: " + fs.getOccupied()/1000+ " KBytes");
+		
+		if(fs.hasChunks()) {
+			ArrayList<Chunk> chunks = fs.getFiles();
+			
+			System.out.println("\nCHUNKS");
+			for(int i=0; i < chunks.size(); i++) {
+				System.out.println("ID: "+ chunks.get(i).getId());
+				System.out.println("SIZE: "+ chunks.get(i).getData().length);
+				System.out.println("REP DEGREE: " + chunks.get(i).getCurrentReplication()); 
+			}
+			
+			System.out.println("");
+		}
 		
 	}
 	

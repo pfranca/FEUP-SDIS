@@ -6,12 +6,15 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import core.Chunk;
 import msg.MsgHandler;
+import java.util.HashSet;
+import java.util.Hashtable;
 
 
 public class MC implements Runnable{
     public MulticastSocket multicastSocket;
     public InetAddress multicastAddress;
     public int multicastPort;
+    private Hashtable<String, HashSet<Integer>> logs; 
 
     public MC(String address, String port) throws IOException{
 
@@ -21,6 +24,8 @@ public class MC implements Runnable{
         multicastSocket = new MulticastSocket(multicastPort);
         multicastSocket.setTimeToLive(1);
         multicastSocket.joinGroup(multicastAddress);
+
+        logs = new Hashtable<String, HashSet<Integer>>();
     }
 
     public void run(){

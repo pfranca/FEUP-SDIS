@@ -148,8 +148,9 @@ public class MsgHandler implements Runnable{
 		String fileId = msgHeader[3];
 		int chunkNr = Integer.parseInt(msgHeader[4]);
 	
+		System.out.println("/chk"+ chunkNr);
 		
-		File file = new File(Peer.BACKUP +  fileId + "_"+ chunkNr);
+		File file = new File(Peer.BACKUP + "/" +  fileId + "/chk"+ chunkNr);
 		
 		Peer.getMdr().startSave(fileId);
 		

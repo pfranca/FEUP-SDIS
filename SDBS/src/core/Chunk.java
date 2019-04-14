@@ -7,6 +7,7 @@ import javafx.application.Preloader.PreloaderNotification;
 
 
 public class Chunk implements Serializable{
+
   int chunkNr;
   String fileId;
   byte[] data;
@@ -26,7 +27,7 @@ public class Chunk implements Serializable{
     fileId = fId;
     data = d;
     replication = rep;
-    id = chknr + fId;//TODO
+    id = chknr +"_"+ fId;//TODO
     currentReplication = 0;
 
   }

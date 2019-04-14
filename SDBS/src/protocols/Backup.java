@@ -34,7 +34,7 @@ public class Backup implements Runnable{
             
             if(i == nrOfChunks-1) {
                 if(fileData.length % Chunk.MAX == 0) {
-                    data= new byte[0];
+                    data = new byte[0];
                 }else {
                     data = Arrays.copyOfRange(fileData, i*Chunk.MAX, i*Chunk.MAX + (fileData.length % Chunk.MAX));
                 }
