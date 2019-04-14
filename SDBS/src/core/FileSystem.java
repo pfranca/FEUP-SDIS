@@ -23,6 +23,10 @@ public class FileSystem implements Serializable{
         File f1 = new File(Peer.BACKUP);
     if (!(f1.exists() && f1.isDirectory()))
         f1.mkdirs();
+
+        File f3 = new File(Peer.RESTORED);
+    if (!(f3.exists() && f3.isDirectory()))
+        f3.mkdirs();
     }
 
     public long getOccupied(){

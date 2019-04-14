@@ -28,7 +28,7 @@ public class MsgForwarder{
 	}
 	
 	public void sendPUTCHUNK(Chunk chunk){
-		String header = "PUTCHUNK"  
+		String header = "PUTCHUNK"
 						+ " " + version 
 						+ " " + Peer.getPeerId()
 						+ " " + chunk.getFileId()
