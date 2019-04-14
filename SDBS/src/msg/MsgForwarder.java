@@ -5,7 +5,6 @@ import java.util.Arrays;
 import utils.Utils;
 import core.Chunk;
 import core.Peer;
-//TODO:ref
 
 public class MsgForwarder{
 	Double version;
@@ -62,7 +61,7 @@ public class MsgForwarder{
 	public void sendGETCHUNK(int chunkNr, String fileId) {
 		String header = "GETCHUNK";
 			header = sendAux(chunkNr, fileId, header);
-			
+
 	}
 
 	public void sendREMOVED(int chunkNr, String fileId) {
