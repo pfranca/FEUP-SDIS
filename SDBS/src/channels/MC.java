@@ -6,32 +6,41 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import core.Chunk;
 import msg.MsgHandler;
-import java.util.HashSet;
-import java.util.Hashtable;
 
 
 public class MC implements Runnable{
     public MulticastSocket multicastSocket;
     public InetAddress multicastAddress;
-    public int multicastPort;
-    private Hashtable<String, HashSet<Integer>> logs; 
+    public int multicastGate;
+    public static final int TTL = 1;
 
-    public MC(String address, String port) throws IOException{
+    public MC(String adr, String gate) throws IOException{
 
-        this.multicastAddress = InetAddress.getByName(address);
-        this.multicastPort = Integer.parseInt(port);
+        this.multicastAddress = InetAddress.getByName(adr);
+        this.multicastGate = Integer.parseInt(gate);
 
-        multicastSocket = new MulticastSocket(multicastPort);
-        multicastSocket.setTimeToLive(1);
+        multicastSocket = new MulticastSocket(multicastGate);
+        multicastSocket.setTimeToLive(TTL);
         multicastSocket.joinGroup(multicastAddress);
 
-        logs = new Hashtable<String, HashSet<Integer>>();
+        
+    }
+
+    public synchronized void sendMsg(byte[] message){
+        DatagramPacket dataPacket = new DatagramPacket(message , message.length, multicastAddress, multicastGate);
+        try{
+            multicastSocket.send(dataPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void run(){
         boolean end = false;
 
-        byte[] buffer = new byte[1024 + Chunk.MAX];//mudar tamanho
+        int bufferSize = 1024;
+
+        byte[] buffer = new byte[bufferSize + Chunk.MAX];
 
         while(end == false){
             try{
@@ -45,13 +54,6 @@ public class MC implements Runnable{
         multicastSocket.close();
     }
 
-    public synchronized void sendMsg(byte[] msg){
-        DatagramPacket dataPacket = new DatagramPacket(msg , msg.length, multicastAddress, multicastPort);
-        try{
-            multicastSocket.send(dataPacket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    
 
 }

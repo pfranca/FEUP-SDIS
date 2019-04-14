@@ -1,33 +1,33 @@
 package channels;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Hashtable;
 
 public class MDB extends MC {
-  private Hashtable<String, HashSet<Integer>> logs; 
+  private Hashtable<String, HashSet<Integer>> hash; 
 
-  public MDB(String adrr, String port) throws IOException{
-      super(adrr, port);
-      logs = new Hashtable<String, HashSet<Integer>>();
+  public MDB(String adrr, String gate) throws IOException{
+      super(adrr, gate);
+      hash = new Hashtable<String, HashSet<Integer>>();
   }
 
+
+  public void save(String chunkId, int peerId) {
+    if (hash.containsKey(chunkId))
+    hash.get(chunkId).add(peerId);
+	}
+
   public void startSave(String chunkId) {
-    logs.put(chunkId, new HashSet<Integer>());
+    hash.put(chunkId, new HashSet<Integer>());
   }
   
   public int getSaves(String chunkId) {
-    if(logs.get(chunkId) == null) return 0;
-    return logs.get(chunkId).size();
+    if(hash.get(chunkId) == null) return 0;
+    return hash.get(chunkId).size();
   }
   
   public void stopSave(String chunkId) {
-    logs.remove(chunkId);
+    hash.remove(chunkId);
   }
-  
-  public void save(String chunkId, int peerId) {
-    if (logs.containsKey(chunkId))
-      logs.get(chunkId).add(peerId);
-	}
 }
