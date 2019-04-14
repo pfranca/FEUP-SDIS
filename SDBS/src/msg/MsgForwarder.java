@@ -28,12 +28,16 @@ public class MsgForwarder{
 	
 	public void sendPUTCHUNK(Chunk chunk){
 		String header = "PUTCHUNK";  
-				header = sendAuxCunk(chunk, header);
+				header = sendAuxChunk(chunk, header);
+				byte[] msg = createMessage(header.getBytes(), chunk.getData());
+		Peer.getMdb().sendMsg(msg);
 	}
 
 	public void sendCHUNK(Chunk chunk) {
 		String header = "CHUNK";
-			header = sendAuxCunk(chunk, header);
+			header = sendAuxChunk(chunk, header);
+			byte[] msg = createMessage(header.getBytes(), chunk.getData());
+		Peer.getMdb().sendMsg(msg);
 	}
 
 	
@@ -61,12 +65,14 @@ public class MsgForwarder{
 	public void sendGETCHUNK(int chunkNr, String fileId) {
 		String header = "GETCHUNK";
 			header = sendAux(chunkNr, fileId, header);
+			Peer.getMc().sendMsg(header.getBytes());
 
 	}
 
 	public void sendREMOVED(int chunkNr, String fileId) {
 		String header = "REMOVED";
 			header = sendAux(chunkNr, fileId, header);
+			Peer.getMc().sendMsg(header.getBytes());
 
 	}
 
@@ -80,11 +86,11 @@ public class MsgForwarder{
 		header += " " + chunkNr;
 		header += " " + CRLF + CRLF;
 
-		Peer.getMc().sendMsg(header.getBytes());
+		return header;
 	}
 
 
-	private String sendAuxCunk(Chunk chunk, String header) {
+	private String sendAuxChunk(Chunk chunk, String header) {
 		header += " " + version;
 		header += " " + Peer.getPeerId();
 		header += " " + chunk.getFileId();
@@ -92,8 +98,7 @@ public class MsgForwarder{
 		header += " " + chunk.getReplication();
 		header += " " + CRLF + CRLF;
 
-		byte[] msg = createMessage(header.getBytes(), chunk.getData());
-		Peer.getMdb().sendMsg(msg);
+		return header;
 	}
 
 
