@@ -1,14 +1,11 @@
 package msg;
 
-import core.Chunk;
-import core.Peer;
+import core.*;
 
 public class MsgForwarder{
-	Double version;
 	
-    public static byte CR = 0xD;
-    public static byte LF = 0xA;
-    public static String CRLF = "" + (char) CR + (char) LF;
+	public static String CRLF = "" + (char) 0xD + (char) 0xA;
+	Double version;
 	
 	public MsgForwarder(double version) {
 		this.version = version;
@@ -16,65 +13,59 @@ public class MsgForwarder{
 	
 	public byte[] createMessage(byte[] header, byte[]body) {
 		
-		byte[] msg = new byte[header.length + body.length];
-		System.arraycopy(header, 0, msg, 0, header.length);
-		System.arraycopy(body, 0, msg, header.length, body.length);
-		
-		return msg;
+		byte[] message = new byte[header.length + body.length];
+		System.arraycopy(header, 0, message, 0, header.length);
+		System.arraycopy(body, 0, message, header.length, body.length);
+		return message;
 	}
 	
-	public void sendPUTCHUNK(Chunk chunk){
+	public void sendPUTCHUNK(Chunk c){
 		String header = "PUTCHUNK";  
-				header = sendAuxChunk(chunk, header);
-				byte[] msg = createMessage(header.getBytes(), chunk.getData());
+		header = sendAuxChunk(c, header);
+		byte[] msg = createMessage(header.getBytes(), c.getData());
 		Peer.getMdb().sendMsg(msg);
 	}
 
-	public void sendCHUNK(Chunk chunk) {
+	public void sendCHUNK(Chunk c) {
 		String header = "CHUNK";
-			header = sendAuxChunk(chunk, header);
-			byte[] msg = createMessage(header.getBytes(), chunk.getData());
+		header = sendAuxChunk(c, header);
+		byte[] msg = createMessage(header.getBytes(), c.getData());
 		Peer.getMdb().sendMsg(msg);
 	}
 
 	
-	public void sendSTORED(Chunk chunk) {
+	public void sendSTORED(Chunk c) {
 		String header = "STORED";
-						header+= " " + version; 
-						header+= " " + Peer.getPeerId();
-						header+= " " + chunk.getFileId();
-						header+= " " + chunk.getChunkNr();
-						header+= " " + CRLF + CRLF;
-		
+		header+= " " + version; 
+		header+= " " + Peer.getPeerId();
+		header+= " " + c.getFileId();
+		header+= " " + c.getChunkNr();
+		header+= " " + CRLF + CRLF;
 		Peer.getMc().sendMsg(header.getBytes());
 	}
 	
-	public void sendDELETE(String fileid) {
+	public void sendDELETE(String fileId) {
 		String header = "DELETE";
-						header+= " " + version;
-						header+= " " + Peer.getPeerId();
-						header+= " " + fileid;
-						header+= " " + CRLF + CRLF;
-		
+		header+= " " + version;
+		header+= " " + Peer.getPeerId();
+		header+= " " + fileId;
+		header+= " " + CRLF + CRLF;
 		Peer.getMc().sendMsg(header.getBytes());
 	}
 
 	public void sendGETCHUNK(int chunkNr, String fileId) {
 		String header = "GETCHUNK";
-			header = sendAux(chunkNr, fileId, header);
-			Peer.getMc().sendMsg(header.getBytes());
+		header = sendAux(chunkNr, fileId, header);
+		Peer.getMc().sendMsg(header.getBytes());
 
 	}
 
 	public void sendREMOVED(int chunkNr, String fileId) {
 		String header = "REMOVED";
-			header = sendAux(chunkNr, fileId, header);
-			Peer.getMc().sendMsg(header.getBytes());
+		header = sendAux(chunkNr, fileId, header);
+		Peer.getMc().sendMsg(header.getBytes());
 
 	}
-
-
-	//AUXILIAR SEND FUNCTIONS 
 
 	private String sendAux(int chunkNr, String fileId, String header) {
 		header += " " + version;
@@ -82,19 +73,17 @@ public class MsgForwarder{
 		header += " " + fileId;
 		header += " " + chunkNr;
 		header += " " + CRLF + CRLF;
-
 		return header;
 	}
 
 
-	private String sendAuxChunk(Chunk chunk, String header) {
+	private String sendAuxChunk(Chunk c, String header) {
 		header += " " + version;
 		header += " " + Peer.getPeerId();
-		header += " " + chunk.getFileId();
-		header += " " + chunk.getChunkNr();
-		header += " " + chunk.getReplication();
+		header += " " + c.getFileId();
+		header += " " + c.getChunkNr();
+		header += " " + c.getReplication();
 		header += " " + CRLF + CRLF;
-
 		return header;
 	}
 

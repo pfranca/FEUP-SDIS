@@ -16,20 +16,21 @@ public class Backup implements Runnable{
 
     }
 
-
-
+    public static byte[] loadFileBytes(File file) throws IOException  {
+		FileInputStream fInStream = new FileInputStream(file);
+		byte[] data = new byte[(int) file.length()];
+		fInStream.read(data);
+		fInStream.close();
+		return data;
+	}
 
     public void run(){
-
         try{
         byte[] fileData = loadFileBytes(f);
-        String fileId = Utils.getFileID(f);
+        String fileId = Utils.getFileId(f);
         int nrOfChunks= fileData.length / (Chunk.MAX) + 1;
-        System.out.print("POPOP");
 
         for(int i =0; i < nrOfChunks; i++) {
-				
-            // gets chunk data
             byte[] data;
             
             if(i == nrOfChunks-1) {
@@ -41,32 +42,12 @@ public class Backup implements Runnable{
             }else {
                 data = Arrays.copyOfRange(fileData, i*Chunk.MAX, (i+1)*Chunk.MAX);
             }
-            
-            // creates chunk 
+    
             Chunk chunk=new Chunk(i,fileId,data,replication);
-            
-            // chunk backup
-            chunk.backup();
-            
+    
+            chunk.backup();      
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    } catch (NoSuchAlgorithmException e) {
-        e.printStackTrace();
+        } catch (IOException e) {e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {e.printStackTrace();}
     }
-        
-
-    }
-
-    public static byte[] loadFileBytes(File file) throws IOException  {
-		FileInputStream file_is = new FileInputStream(file);
-
-		byte[] data = new byte[(int) file.length()];
-
-		file_is.read(data);
-		file_is.close();
-
-		return data;
-	}
-
 }

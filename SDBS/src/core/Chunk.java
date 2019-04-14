@@ -35,7 +35,7 @@ public class Chunk implements Serializable{
 	public boolean equals(Object obj) {
 		if(obj == null) return false;
     Chunk chunk = (Chunk) obj;
-    boolean isEqualChunk = (this.chunkNr == chunk.getChunkNr() && this.fileId.equals(chunk.getFileId())); //TODO
+    boolean isEqualChunk = (this.chunkNr == chunk.getChunkNr() && this.fileId.equals(chunk.getFileId()));
     return isEqualChunk;
   }
     
