@@ -14,20 +14,18 @@ public class MDB extends MC {
 
 
   public void save(String chunkId, int peerId) {
-    if (hash.containsKey(chunkId))
-    hash.get(chunkId).add(peerId);
+    if (hash.containsKey(chunkId)) {hash.get(chunkId).add(peerId);}
 	}
 
-  public void startSave(String chunkId) {
-    hash.put(chunkId, new HashSet<Integer>());
-  }
+  public void startSave(String chunkId) {hash.put(chunkId, new HashSet<Integer>());}
   
   public int getSaves(String chunkId) {
-    if(hash.get(chunkId) == null) return 0;
-    return hash.get(chunkId).size();
+    if(hash.get(chunkId) == null){
+      return 0;
+    } else{
+      return hash.get(chunkId).size();
+    }
   }
   
-  public void stopSave(String chunkId) {
-    hash.remove(chunkId);
-  }
+  public void stopSave(String chunkId){ hash.remove(chunkId);}
 }
