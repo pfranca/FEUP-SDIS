@@ -90,21 +90,6 @@ public class TestApp {
 			}
 			break;
 
-		case "RECLAIM":
-			if (args.length != 3) {
-				invalidArgs();
-				reclaim();
-			}
-
-			int diskSpace = Integer.parseInt(args[2]);
-
-			try {
-				i_rmi.raclaim(diskSpace);
-				sent();
-			} catch (RemoteException e) {
-				deleteExcep(e);
-			}
-			break;
 
 		case "STATE":
 			try {

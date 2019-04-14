@@ -53,7 +53,7 @@ public class MsgHandler implements Runnable{
 			hdlSTRORED();
 			break;
 		case "DELETE":
-			//hdlDELETE();
+			hdlDELETE();
 			break;
 		case "GETCHUNK":
 			hdlGETCHUNK();
@@ -62,14 +62,14 @@ public class MsgHandler implements Runnable{
 			hdlCHUNK();
 			break;
 		case "REMOVED":
-			//hdlREMOVED();
+			hdlREMOVED();
 		default:
 			break;
 			
 		}
 		
 	}
-/*
+
 	private void hdlREMOVED() {
 		System.out.println("REMOVED RECEIVED"); //TODO: ref
 		String fileId = msgHeader[3];
@@ -78,27 +78,27 @@ public class MsgHandler implements Runnable{
 		Chunk chunk = new Chunk(chunkNr, fileId, new byte[0], 0);
 		
 		
-		ArrayList<Chunk> chunks = Peer.getDisk().getFiles();
+		ArrayList<Chunk> chunks = Peer.getFileSystem().getFiles();
 	
 			if(chunks.contains(chunk)) {
 			
 				int i=0;	
 				while(true) {
 					
-					if(chunks.get(i).getID().equals(chunk.getID())) { //TODO ID-Id
+					if(chunks.get(i).getId().equals(chunk.getId())) { //TODO ID-Id
 						chunk= chunks.get(i);
 	
 						
-						chunk.setActualRepDegree(chunk.getActualRepDegree()-1);
+						chunk.setCurrentReplication(chunk.getCurrentReplication()-1);
 						
 						
-						if(chunk.getActualRepDegree() < chunk.getRepDegree()) {
+						if(chunk.getCurrentReplication() < chunk.getReplication()) {
 							
 							// wait a random delay
 							Random rand = new Random(); //TODO: por utils
 							int  n = rand.nextInt(400) + 1;
 							
-							Peer.getMdb().startSave(chunk.getID());
+							Peer.getMdb().startSave(chunk.getId());
 														
 							try {
 								Thread.sleep(n);
@@ -108,11 +108,11 @@ public class MsgHandler implements Runnable{
 							
 							
 							
-							int save = Peer.getMdb().getSaves(chunk.getID());
+							int save = Peer.getMdb().getSaves(chunk.getId());
 							
 							System.out.println("SAVES " + save); //TODO: ref
 							
-							Peer.getMdb().stopSave(chunk.getID());
+							Peer.getMdb().stopSave(chunk.getId());
 							
 							if(save == 0 ) //TODO: was (save == 0)
 								chunk.backup();
@@ -125,7 +125,7 @@ public class MsgHandler implements Runnable{
 			}			
 		
 	}
-*/
+
 	private void hdlCHUNK() {
 		System.out.println("CHUNK RECEIVED"); //TODO ref
 		
@@ -189,17 +189,17 @@ public class MsgHandler implements Runnable{
 		
 		
 	}
-/*
-	private void handleDELETE() {
+
+	private void hdlDELETE() {
 		System.out.println("DELETE RECEIVED");
 		
-		String file_id = header[3];
+		String file_id = msgHeader[3];
 
-		Peer.getDisk().deleteChunks(file_id);
+		Peer.getFileSystem().deleteChunks(file_id);
 	   
 		
 	}
-*/
+
 	private void hdlSTRORED() {
 		System.out.println("STORED RECEIVED");
 		

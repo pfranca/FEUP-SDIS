@@ -13,6 +13,6 @@ public interface RMI extends Remote {
 
 	void state()throws RemoteException;
 
-	void raclaim(int space)throws RemoteException;
+	//void raclaim(int space)throws RemoteException;
 
 }

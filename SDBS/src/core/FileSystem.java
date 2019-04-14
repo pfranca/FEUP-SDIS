@@ -89,6 +89,40 @@ public class FileSystem implements Serializable{
 		}
 		try {Peer.saveFs();} catch (IOException e) {e.printStackTrace();}
 	
+    }
+    
+    public void deleteChunk(Chunk c) {
+
+		for(int i=0; i< files.size();i++) {
+			if(files.get(i).getId().equals(c.getId())) {
+				files.remove(i);
+				break;
+			}
+		}
+		
+		File file = new File(Peer.BACKUP +"/"+c.getFileId()+"/chk"+ c.getChunkNr()); //TODO: MUDAR
+		
+		file.delete();
+		
+		this.occupied-= c.getData().length;
+		
+		
+		System.out.println("Chunk Deleted\n" + c.getId());
+		
+	
+	}
+
+
+	public void deleteChunks(String fileId) {
+		// Use iterators
+		for(int i=0; i< files.size();i++) {
+			if(files.get(i).getFileId().equals(fileId)) {
+				deleteChunk(files.get(i));
+				i--;
+			}
+		}
+		
+		
 	}
 
 }

@@ -81,7 +81,7 @@ public class Peer implements RMI {
 		ROOT += peerId + "/";
 		BACKUP = "peer" + peerId + "/backup";
 		RESTORED = "peer" + peerId + "/restored/";
-		FILESYSTEM = "peer" + peerId + ".data";
+		FILESYSTEM = "peer" + peerId +"/peer" + peerId +  ".data";
 		
 		loadFs();
 
@@ -203,7 +203,8 @@ public class Peer implements RMI {
 	
 	
 	public void delete(String fPath) throws RemoteException {
-		
+		Delete init = new Delete(fPath);
+		new Thread(init).start();
 	}
 	
 	public void restore(String fPath) throws RemoteException{
@@ -232,7 +233,7 @@ public class Peer implements RMI {
 		
 	}
 	
-	public void raclaim(int space) throws RemoteException{
+	//public void raclaim(int space) throws RemoteException{
 		
-	}
+	//}
 }
