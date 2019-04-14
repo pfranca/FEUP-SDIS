@@ -34,10 +34,10 @@ public class Peer implements RMI {
 	static MC mc;
 	static MDB mdb;
 	static MDR mdr;
-	static String ROOT = "peer";
-	static String BACKUP = "backup";
-	static String RESTORED = "restored";
-	static String FILESYSTEM = "";
+	public static String ROOT = "peer";
+	public static String BACKUP = "backup";
+	public static String RESTORED = "restored";
+	public static String FILESYSTEM = "";
 	
 
 
