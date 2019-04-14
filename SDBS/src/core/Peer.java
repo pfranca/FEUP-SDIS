@@ -18,7 +18,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import msg.MsgForwarder;
-import protocols.Backup;
+import protocols.*;
 
 
 
@@ -206,7 +206,8 @@ public class Peer implements RMI {
 	}
 	
 	public void restore(String fPath) throws RemoteException{
-		
+		Restore init = new Restore(fPath);
+		new Thread(init).start();
 	}
 	
 	public void state() throws RemoteException{
