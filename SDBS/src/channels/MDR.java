@@ -9,33 +9,26 @@ import java.util.Hashtable;
 public class MDR extends MC {
   private Hashtable<String, ArrayList<Chunk>> restore; 
 
-  public MDR(String adrr, String gate) throws IOException{
-      super(adrr, gate);
+  public MDR(String adrr, String port) throws IOException{
+      super(adrr, port);
       restore = new Hashtable<String, ArrayList<Chunk>>();
   }
 
   public void save(String fileId, Chunk c) { 
-    if (restore.containsKey(fileId))
-      restore.get(fileId).add(c); 
+    if (restore.containsKey(fileId)){restore.get(fileId).add(c); }
   }
 
-  public void startSave(String fileId) {
-    restore.put(fileId, new ArrayList<Chunk>());
-  }
+  public void startSave(String fileId) { restore.put(fileId, new ArrayList<Chunk>());}
   
   public ArrayList<Chunk> getSave(String fileId) { 
-    if (restore.containsKey(fileId))
+    if (restore.containsKey(fileId)){
       return restore.get(fileId);
-    return null;
+    } else{
+      return null;
+    }
   }
   
-  public void stopSave(String fileId) {
-    restore.remove(fileId);
-  }
-  
-  public boolean isSaving(String chunkId) {
-    return restore.containsKey(chunkId);
-	}
+  public boolean isSaving(String chunkId) {return restore.containsKey(chunkId);}
 
-
+  public void stopSave(String fileId) {restore.remove(fileId);}
 }

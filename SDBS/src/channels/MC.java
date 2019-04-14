@@ -15,24 +15,17 @@ public class MC implements Runnable{
     public static final int TTL = 1;
 
     public MC(String adr, String gate) throws IOException{
-
-        this.multicastAddress = InetAddress.getByName(adr);
-        this.multicastGate = Integer.parseInt(gate);
+        multicastAddress = InetAddress.getByName(adr);
+        multicastGate = Integer.parseInt(gate);
 
         multicastSocket = new MulticastSocket(multicastGate);
         multicastSocket.setTimeToLive(TTL);
-        multicastSocket.joinGroup(multicastAddress);
-
-        
+        multicastSocket.joinGroup(multicastAddress); 
     }
 
     public synchronized void sendMsg(byte[] message){
         DatagramPacket dataPacket = new DatagramPacket(message , message.length, multicastAddress, multicastGate);
-        try{
-            multicastSocket.send(dataPacket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        try{multicastSocket.send(dataPacket);} catch (IOException e) {e.printStackTrace();}
     }
 
     public void run(){
@@ -47,9 +40,7 @@ public class MC implements Runnable{
                 DatagramPacket dataPacket = new DatagramPacket(buffer, buffer.length);
                 multicastSocket.receive(dataPacket);
                 new Thread(new MsgHandler(dataPacket)).start();
-            } catch (IOException e){
-                e.printStackTrace();
-            }
+            } catch (IOException e){e.printStackTrace();}
         }
         multicastSocket.close();
     }
