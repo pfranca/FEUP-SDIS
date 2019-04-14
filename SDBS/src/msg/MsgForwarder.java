@@ -28,83 +28,74 @@ public class MsgForwarder{
 	}
 	
 	public void sendPUTCHUNK(Chunk chunk){
-		String header = "PUTCHUNK"  
-						+ " " + version 
-						+ " " + Peer.getPeerId()
-						+ " " + chunk.getFileId()
-						+ " " + chunk.getChunkNr()
-						+ " " + chunk.getReplication()
-						+ " " + CRLF + CRLF;
-
-		
-		byte[] msg = createMessage(header.getBytes(),chunk.getData());
-		Peer.getMdb().sendMsg(msg);
-						
+		String header = "PUTCHUNK";  
+				header = sendAuxCunk(chunk, header);
 	}
-	
+
 	public void sendCHUNK(Chunk chunk) {
-		String header = "CHUNK"  
-				+ " " + version 
-				+ " " + Peer.getPeerId()
-				+ " " + chunk.getFileId()
-				+ " " + chunk.getChunkNr()
-				+ " " + chunk.getReplication()
-				+ " " + CRLF + CRLF;
-
-
-		byte[] msg = createMessage(header.getBytes(),chunk.getData());
-		Peer.getMdr().sendMsg(msg);
-				
+		String header = "CHUNK";
+			header = sendAuxCunk(chunk, header);
 	}
+
 	
 	public void sendSTORED(Chunk chunk) {
-		String header = "STORED"
-						+ " " + version 
-						+ " " + Peer.getPeerId()
-						+ " " + chunk.getFileId()
-						+ " " + chunk.getChunkNr()
-						+ " " + CRLF + CRLF;
+		String header = "STORED";
+						header+= " " + version; 
+						header+= " " + Peer.getPeerId();
+						header+= " " + chunk.getFileId();
+						header+= " " + chunk.getChunkNr();
+						header+= " " + CRLF + CRLF;
 		
 		Peer.getMc().sendMsg(header.getBytes());
 	}
 	
 	public void sendDELETE(String fileid) {
-		String header = "DELETE"
-						+ " " + version
-						+ " " + Peer.getPeerId()
-						+ " " + fileid
-						+ " " + CRLF + CRLF;
+		String header = "DELETE";
+						header+= " " + version;
+						header+= " " + Peer.getPeerId();
+						header+= " " + fileid;
+						header+= " " + CRLF + CRLF;
 		
 		Peer.getMc().sendMsg(header.getBytes());
 	}
 
 	public void sendGETCHUNK(int chunkNr, String fileId) {
-		String header = "GETCHUNK"
-				+ " " + version 
-				+ " " + Peer.getPeerId()
-				+ " " + fileId
-				+ " " + chunkNr
-				+ " " + CRLF + CRLF;
-		
-
-		Peer.getMc().sendMsg(header.getBytes());
-		
+		String header = "GETCHUNK";
+			header = sendAux(chunkNr, fileId, header);
+			
 	}
 
 	public void sendREMOVED(int chunkNr, String fileId) {
-		String header = "REMOVED"
-				+ " " + version 
-				+ " " + Peer.getPeerId()
-				+ " " + fileId
-				+ " " + chunkNr
-				+ " " + CRLF + CRLF;
-		
+		String header = "REMOVED";
+			header = sendAux(chunkNr, fileId, header);
 
-		Peer.getMc().sendMsg(header.getBytes());
-		
-		
 	}
 
+
+	//AUXILIAR SEND FUNCTIONS 
+
+	private String sendAux(int chunkNr, String fileId, String header) {
+		header += " " + version;
+		header += " " + Peer.getPeerId();
+		header += " " + fileId;
+		header += " " + chunkNr;
+		header += " " + CRLF + CRLF;
+
+		Peer.getMc().sendMsg(header.getBytes());
+	}
+
+
+	private String sendAuxCunk(Chunk chunk, String header) {
+		header += " " + version;
+		header += " " + Peer.getPeerId();
+		header += " " + chunk.getFileId();
+		header += " " + chunk.getChunkNr();
+		header += " " + chunk.getReplication();
+		header += " " + CRLF + CRLF;
+
+		byte[] msg = createMessage(header.getBytes(), chunk.getData());
+		Peer.getMdb().sendMsg(msg);
+	}
 
 
 	
