@@ -8,125 +8,162 @@ import core.RMI;
 
 public class TestApp {
 	
-	static RMI stub;
+	static RMI i_rmi;
 	
     private TestApp() {}
 
     public static void main(String[] args) {
-    	
-    	// main variables initialization
-    	String peer_ap = args[0];
-        String sub_protocol = args[1].toUpperCase();
+		
+		
+    	String peerAp = args[0];
+        String subProt = args[1].toUpperCase();
         
-        System.out.println("access point: " + peer_ap);
-        System.out.println("subprotocol: " + sub_protocol);
+        System.out.println("Access Point : " + peerAp);
+        System.out.println("Subprotocol : " + subProt);
 
-        // establishing connection
+        
         try {
             Registry registry = LocateRegistry.getRegistry("localhost");
-            stub = (RMI) registry.lookup(peer_ap);
+            i_rmi = (RMI) registry.lookup(peerAp);
 
         } catch (Exception e) {
-        	System.err.println("RMI exception: " + e.toString());
-            e.printStackTrace();
-        }
-        
-        String file_path;
-        
-        switch(sub_protocol){
-        	case "BACKUP":
-	        	if(args.length != 4) {
-	        		System.out.println("Error: Invalid arguements");
-	        		System.out.println("Usage: TestApp <peer_ap> BACKUP <file_path> <rep_degree>");
-	        	}
-	        	
-	        	file_path = args[2];
-	        	int rep_degree = Integer.parseInt(args[3]);
-	        	
-	        	if(rep_degree >9) {
-	        		System.out.println("Error: Invalid replication degree");
-	        		System.out.println("Must be an integer lower than 10");
-	        	}
-	        	
+        	rmiExcep(e);
+		}
 
-	            System.out.println("file path: " + file_path);
-	            System.out.println("replication degree: " + rep_degree);
+		String filePath;
 
-	        	
-	        	try {
-	               stub.backup(file_path, rep_degree);
-	               System.out.println("\nSent");
-	            } catch (RemoteException e) {
-	            	 System.err.println("Backup exception: " + e.toString());
-	                 e.printStackTrace();
-	            }
-	        	break;
-	        	
-        	case "DELETE":
-        		if(args.length != 3) {
-	        		System.out.println("Error: Invalid arguements");
-	        		System.out.println("Usage: TestApp <peer_ap> DELETE <file_path>");
-	        	}
-        		
-        		file_path = args[2];
-        		
-        		try {
- 	               stub.delete(file_path);
- 	               System.out.println("\nSent");
- 	            } catch (RemoteException e) {
- 	            	 System.err.println("Delete exception: " + e.toString());
- 	                 e.printStackTrace();
- 	            }
- 	        	break;
- 	        	
-        	case "RESTORE":
-        		if(args.length != 3) {
-	        		System.out.println("Error: Invalid arguements");
-	        		System.out.println("Usage: TestApp <peer_ap> RESTORE <file_path>");
-	        	}
-        		
-        		file_path = args[2];
-        		
-        		try {
- 	               stub.restore(file_path);
- 	               System.out.println("\nSent");
- 	            } catch (RemoteException e) {
- 	            	 System.err.println("Delete exception: " + e.toString());
- 	                 e.printStackTrace();
- 	            }
- 	        	break;
- 	        	
-        	case "RECLAIM":
-        		if(args.length != 3) {
-	        		System.out.println("Error: Invalid arguements");
-	        		System.out.println("Usage: TestApp <peer_ap> RECLAIM <space>");
-	        	}
-        		
-        		int space = Integer.parseInt(args[2]);
-        		
-        		try {
- 	               stub.raclaim(space);
- 	               System.out.println("\nSent");
- 	            } catch (RemoteException e) {
- 	            	 System.err.println("Delete exception: " + e.toString());
- 	                 e.printStackTrace();
- 	            }
- 	        	break;	
- 	        
-        	case "STATE":
-        		try {
-  	               stub.state();
-  	               System.out.println("\nSent");
-  	            } catch (RemoteException e) {
-  	            	 System.err.println("Delete exception: " + e.toString());
-  	                 e.printStackTrace();
-  	            }
-  	        	break;
-        	
-        	default:
-        		System.out.println("Error: Invalid subprotocol");
-        		System.out.println("Subprotocols - BACKUP RESTORE DELETE RECLAIM STATE");
-        
-        }
-    }
+		switch (subProt) {
+		case "BACKUP":
+			if (args.length != 4) {
+				invalidArgs();
+				backup();
+			}
+
+			filePath = args[2];
+			int replicatDegr = Integer.parseInt(args[3]);
+
+			if (replicatDegr > 9) {
+				System.out.println("ATENTION : Replication degree is not valid!!");
+				System.out.println("ATENTION : int < 10");
+			}
+
+			System.out.println("file path: " + filePath);
+			System.out.println("replication degree: " + replicatDegr);
+
+			try {
+				i_rmi.backup(filePath, replicatDegr);
+				sent();
+			} catch (RemoteException e) {
+				backupExcep(e);
+			}
+			break;
+
+		case "DELETE":
+			if (args.length != 3) {
+				invalidArgs();
+				delete();
+			}
+
+			filePath = args[2];
+
+			try {
+				i_rmi.delete(filePath);
+				sent();
+			} catch (RemoteException e) {
+				deleteExcep(e);
+			}
+			break;
+
+		case "RESTORE":
+			if (args.length != 3) {
+				invalidArgs();
+				restore();
+			}
+
+			filePath = args[2];
+
+			try {
+				i_rmi.restore(filePath);
+				sent();
+			} catch (RemoteException e) {
+				deleteExcep(e);
+			}
+			break;
+
+		case "RECLAIM":
+			if (args.length != 3) {
+				invalidArgs();
+				reclaim();
+			}
+
+			int diskSpace = Integer.parseInt(args[2]);
+
+			try {
+				i_rmi.raclaim(diskSpace);
+				sent();
+			} catch (RemoteException e) {
+				deleteExcep(e);
+			}
+			break;
+
+		case "STATE":
+			try {
+				i_rmi.state();
+				sent();
+			} catch (RemoteException e) {
+				deleteExcep(e);
+			}
+			break;
+
+		default:
+			System.out.println("ATENTION : Subprotocol is not valid!!");
+			System.out.println("Subprotocols : BACKUP RESTORE DELETE RECLAIM STATE");
+
+		}
+	}
+
+
+
+	//AUXLIAR FUNCTIONS PROTOCOLS 
+
+	private static void backup() {
+		System.out.println("TestApp <peerAp> BACKUP <filePath> <replicatDegr>");
+	}
+
+	private static void delete() {
+		System.out.println("TestApp <peerAp> DELETE <filePath>");
+	}
+
+	private static void reclaim() {
+		System.out.println("TestApp <peerAp> RECLAIM <diskSpace>");
+	}
+
+	private static void restore() {
+		System.out.println("TestApp <peerAp> RESTORE <filePath>");
+	}
+
+	private static void sent() {
+		System.out.println("\nSent");
+	}
+
+	//AUXILIAR FUNCTIONS TO ERROR TREATMENT
+
+	private static void invalidArgs() {
+		System.out.println("ATENTION : Invalid arguements !!!");
+	}
+
+	private static void backupExcep(RemoteException e) {
+		System.err.println("BACKUP Exception: " + e.toString());
+		e.printStackTrace();
+	}
+
+	private static void rmiExcep(Exception e) {
+		System.err.println("RMI Exception: " + e.toString());
+		e.printStackTrace();
+	}
+
+	private static void deleteExcep(RemoteException e) {
+		System.err.println("DELETE Exception: " + e.toString());
+		 e.printStackTrace();
+	}
 }
