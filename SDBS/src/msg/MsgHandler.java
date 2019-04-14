@@ -8,17 +8,9 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.DatagramPacket;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-
-//import common.Utils;
 import core.Chunk;
 import core.Peer;
 
@@ -32,15 +24,13 @@ public class MsgHandler implements Runnable{
 		dataPacket = dp;
 	}
 	
-	@Override
 	public void run() {
 		
 		msgHeader = parseHeader(dataPacket);
 		
 		int peerId = Integer.parseInt(msgHeader[2]);
 		
-		
-		// if message comes from self ignore it 
+
 		if(peerId == Peer.getPeerId()) return;
 		
 		String op = msgHeader[0];
@@ -52,9 +42,6 @@ public class MsgHandler implements Runnable{
 		case "STORED":
 			hdlSTRORED();
 			break;
-		case "DELETE":
-			hdlDELETE();
-			break;
 		case "GETCHUNK":
 			hdlGETCHUNK();
 			break;
@@ -63,6 +50,8 @@ public class MsgHandler implements Runnable{
 			break;
 		case "REMOVED":
 			hdlREMOVED();
+		case "DELETE":
+			hdlDELETE();
 		default:
 			break;
 			
@@ -71,51 +60,50 @@ public class MsgHandler implements Runnable{
 	}
 
 	private void hdlREMOVED() {
-		System.out.println("REMOVED RECEIVED"); //TODO: ref
+		System.out.println("Receiving Removed");
 		String fileId = msgHeader[3];
 		int chunkNr = Integer.parseInt(msgHeader[4]);
 		
-		Chunk chunk = new Chunk(chunkNr, fileId, new byte[0], 0);
+		Chunk chk = new Chunk(chunkNr, fileId, new byte[0], 0);
 		
 		
-		ArrayList<Chunk> chunks = Peer.getFileSystem().getFiles();
+		ArrayList<Chunk> cks = Peer.getFileSystem().getFiles();
 	
-			if(chunks.contains(chunk)) {
+			if(cks.contains(chk)) {
 			
 				int i=0;	
 				while(true) {
 					
-					if(chunks.get(i).getId().equals(chunk.getId())) { //TODO ID-Id
-						chunk= chunks.get(i);
+					if(cks.get(i).getId().equals(chk.getId())) {
+						chk= cks.get(i);
 	
 						
-						chunk.setCurrentReplication(chunk.getCurrentReplication()-1);
+						chk.setCurrentReplication(chk.getCurrentReplication()-1);
 						
 						
-						if(chunk.getCurrentReplication() < chunk.getReplication()) {
+						if(chk.getCurrentReplication() < chk.getReplication()) {
 							
-							// wait a random delay
-							Random rand = new Random(); //TODO: por utils
-							int  n = rand.nextInt(400) + 1;
+							Random rand = new Random(); 
+							int  r = rand.nextInt(400) + 1;
 							
-							Peer.getMdb().startSave(chunk.getId());
+							Peer.getMdb().startSave(chk.getId());
 														
 							try {
-								Thread.sleep(n);
+								Thread.sleep(r);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
 							
 							
 							
-							int save = Peer.getMdb().getSaves(chunk.getId());
+							int isSaved = Peer.getMdb().getSaves(chk.getId());
 							
-							System.out.println("SAVES " + save); //TODO: ref
+							System.out.println("SAVES " + isSaved); 
 							
-							Peer.getMdb().stopSave(chunk.getId());
+							Peer.getMdb().stopSave(chk.getId());
 							
-							if(save == 0 ) //TODO: was (save == 0)
-								chunk.backup();
+							if(isSaved == 0 ) 
+								chk.backup();
 								
 						}
 						return;
@@ -127,23 +115,22 @@ public class MsgHandler implements Runnable{
 	}
 
 	private void hdlCHUNK() {
-		System.out.println("CHUNK RECEIVED"); //TODO ref
+		System.out.println("Receiving Chunk"); 
 		
-		// parsing message
 		String fileId = msgHeader[3];
 		int chunkNr = Integer.parseInt(msgHeader[4]);
 		int replication = Integer.parseInt(msgHeader[5]);
 		byte[] chunkData = parseBody(dataPacket); 
 		
 		if(Peer.getMdr().isSaving(fileId)){
-			Chunk chunk = new Chunk(chunkNr,fileId, chunkData, replication);
-			Peer.getMdr().save(fileId, chunk);
+			Chunk chk = new Chunk(chunkNr,fileId, chunkData, replication);
+			Peer.getMdr().save(fileId, chk);
 		}
 			
 	}
 
 	private void hdlGETCHUNK() {
-		System.out.println("GETCHUNK RECEIVED");
+		System.out.println("Receiving GetChunk");
 		
 		String fileId = msgHeader[3];
 		int chunkNr = Integer.parseInt(msgHeader[4]);
@@ -158,28 +145,26 @@ public class MsgHandler implements Runnable{
 			try {
 				byte[] chunkData = loadFileBytes(file);
 				
-				Chunk chunk = new Chunk(chunkNr, fileId,chunkData,0);
+				Chunk chk = new Chunk(chunkNr, fileId,chunkData,0);
 				
-				// wait a random delay
 				Random rand = new Random();
-				int  n = rand.nextInt(400) + 1;
+				int  r = rand.nextInt(400) + 1;
 				
 				
 				try {
-					Thread.sleep(n);
+					Thread.sleep(r);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} 
 				
-				ArrayList<Chunk> chunks =Peer.getMdr().getSave(fileId);
+				ArrayList<Chunk> chks =Peer.getMdr().getSave(fileId);
 				
 				
-				if(chunks != null)
-				if(!chunks.contains(new Chunk(chunkNr, fileId, new byte[0], 0)))
-						Peer.getMsgForwarder().sendCHUNK(chunk);
+				if(chks != null)
+				if(!chks.contains(new Chunk(chunkNr, fileId, new byte[0], 0)))
+						Peer.getMsgForwarder().sendCHUNK(chk);
 				
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -191,17 +176,17 @@ public class MsgHandler implements Runnable{
 	}
 
 	private void hdlDELETE() {
-		System.out.println("DELETE RECEIVED");
+		System.out.println("Receiving Delete");
 		
-		String file_id = msgHeader[3];
+		String fileId = msgHeader[3];
 
-		Peer.getFileSystem().deleteChunks(file_id);
+		Peer.getFileSystem().deleteChunks(fileId);
 	   
 		
 	}
 
 	private void hdlSTRORED() {
-		System.out.println("STORED RECEIVED");
+		System.out.println("Reiciving Stored");
 		
 		int peerId = Integer.parseInt(msgHeader[2]);
 		String fileId=msgHeader[3];
@@ -220,39 +205,32 @@ public class MsgHandler implements Runnable{
 	private void hdlPUTCHUNK() {
 		System.out.println("PUTCHUNK RECEIVED");
 		
-		// chunk info from header
 		String fileId=msgHeader[3];
 		int chunkNr = Integer.parseInt(msgHeader[4]);
 		int replication = Integer.parseInt(msgHeader[5]);
 		
-		// chunk data from body
 		byte[] chunkData =parseBody(dataPacket);
 		
+		 
+		Chunk chk = new Chunk(chunkNr,fileId,chunkData,replication );
+		Peer.getMdb().save(chk.getId(), 0);
 		
-		// create chunk 
-		Chunk chunk = new Chunk(chunkNr,fileId,chunkData,replication );
-		Peer.getMdb().save(chunk.getId(), 0);
-		
-		// stored chunk if not stored already
-		if(!Peer.getFileSystem().isStored(chunk)) {
-			Peer.getFileSystem().storeChunk(chunk);
+		if(!Peer.getFileSystem().isStored(chk)) {
+			Peer.getFileSystem().storeChunk(chk);
 		}
-		
-		// start saving STORED messages
-		Peer.getMdb().startSave(chunk.getId());
-		
-		// wait a random delay
+
+		Peer.getMdb().startSave(chk.getId());
+
 		Random rand = new Random();
-		int  n = rand.nextInt(400) + 1;
+		int  r = rand.nextInt(400) + 1;
 		
 		try {
-			Thread.sleep(n);
+			Thread.sleep(r);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} 
-		
-		// send STORED message
-		Peer.getMsgForwarder().sendSTORED(chunk);
+	
+		Peer.getMsgForwarder().sendSTORED(chk);
 	}
 
 		public static byte[] loadFileBytes(File file) throws IOException  {

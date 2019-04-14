@@ -1,8 +1,5 @@
 package msg;
 
-
-import java.util.Arrays;
-import utils.Utils;
 import core.Chunk;
 import core.Peer;
 
