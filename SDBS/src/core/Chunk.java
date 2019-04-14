@@ -18,7 +18,7 @@ public class Chunk implements Serializable{
 
   private static final int NR_TO_SEND = 5;
 
-  private static final long serialVersionUID = 1L; //TODO
+  private static final long serialVersionUID = 1L;
 
 
   public Chunk(int chknr, String fId, byte[] d, int rep){
@@ -26,7 +26,7 @@ public class Chunk implements Serializable{
     fileId = fId;
     data = d;
     replication = rep;
-    id = chknr +"_"+ fId;//TODO
+    id = chknr +"_"+ fId;
     currentReplication = 0;
 
   }
@@ -72,25 +72,15 @@ public class Chunk implements Serializable{
     int msgSentCnt = 0;
 
     int backedUp = 0;
-
     while (backedUp < this.replication && msgSentCnt != NR_TO_SEND){
-      Peer.getMdb().startSave(this.id); //TODO: ver
+      Peer.getMdb().startSave(this.id);
 
       Peer.getMsgForwarder().sendPUTCHUNK(this);
       msgSentCnt += 1;
 
 
-      try{
-        TimeUnit.SECONDS.sleep(1);
-
-      } catch (InterruptedException e){
-        //ignore exception
-        e.printStackTrace();
-      }
+      try{TimeUnit.SECONDS.sleep(1);} catch (InterruptedException e){ e.printStackTrace(); } //ignore exception
       backedUp = Peer.getMdb().getSaves(this.id);
-
-      //TODO: increase sleep time?
-
     }
     Peer.getMdb().stopSave(this.id);
 
