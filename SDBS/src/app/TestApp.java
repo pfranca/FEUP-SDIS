@@ -8,108 +8,55 @@ import core.RMI;
 
 public class TestApp {
 	
-	static RMI i_rmi;
+	static RMI rmi;
 	
     private TestApp() {}
 
     public static void main(String[] args) {
 		
-		
+		String filePath;
     	String peerAp = args[0];
-        String subProt = args[1].toUpperCase();
+        String protocol = args[1].toUpperCase();
         
-        System.out.println("Access Point : " + peerAp);
-        System.out.println("Subprotocol : " + subProt);
-
-        
+		System.out.println("Access Point : " + peerAp + "\nProtocol : " + protocol);
+		//rmi
         try {
             Registry registry = LocateRegistry.getRegistry("localhost");
-            i_rmi = (RMI) registry.lookup(peerAp);
+        	rmi = (RMI) registry.lookup(peerAp);
+        } catch (Exception e) {rmiExcep(e);}
 
-        } catch (Exception e) {
-        	rmiExcep(e);
-		}
-
-		String filePath;
-
-		switch (subProt) {
+		switch (protocol) {
 		case "BACKUP":
-			if (args.length != 4) {
-				invalidArgs();
-				backup();
-			}
-
+			if (args.length != 4) {invalidArgs();backup();}
 			filePath = args[2];
-			int replicatDegr = Integer.parseInt(args[3]);
-
-			if (replicatDegr > 9) {
-				System.out.println("ATENTION : Replication degree is not valid!!");
-				System.out.println("ATENTION : int < 10");
-			}
-
-			System.out.println("file path: " + filePath);
-			System.out.println("replication degree: " + replicatDegr);
-
+			int replication = Integer.parseInt(args[3]);
+			System.out.println("File: " + filePath);
+			System.out.println("Replication: " + replication);
 			try {
-				i_rmi.backup(filePath, replicatDegr);
+				rmi.backup(filePath, replication);
 				sent();
-			} catch (RemoteException e) {
-				backupExcep(e);
-			}
+			} catch (RemoteException e) {backupExcep(e);}
 			break;
-
 		case "DELETE":
-			if (args.length != 3) {
-				invalidArgs();
-				delete();
-			}
-
+			if (args.length != 3) {invalidArgs();delete();}
 			filePath = args[2];
-
 			try {
-				i_rmi.delete(filePath);
+				rmi.delete(filePath);
 				sent();
-			} catch (RemoteException e) {
-				deleteExcep(e);
-			}
+			} catch (RemoteException e) {deleteExcep(e);}
 			break;
-
 		case "RESTORE":
-			if (args.length != 3) {
-				invalidArgs();
-				restore();
-			}
-
+			if (args.length != 3) {invalidArgs();restore();}
 			filePath = args[2];
-
 			try {
-				i_rmi.restore(filePath);
+				rmi.restore(filePath);
 				sent();
-			} catch (RemoteException e) {
-				deleteExcep(e);
-			}
+			} catch (RemoteException e) {deleteExcep(e);}
 			break;
-
-
-		case "STATE":
-			try {
-				i_rmi.state();
-				sent();
-			} catch (RemoteException e) {
-				deleteExcep(e);
-			}
-			break;
-
 		default:
-			System.out.println("ATENTION : Subprotocol is not valid!!");
-			System.out.println("Subprotocols : BACKUP RESTORE DELETE RECLAIM STATE");
-
+			System.out.println("Protocol is not valid!\nProtocols : BACKUP RESTORE DELETE ");
 		}
 	}
-
-
-
-	//AUXLIAR FUNCTIONS PROTOCOLS 
 
 	private static void backup() {
 		System.out.println("TestApp <peerAp> BACKUP <filePath> <replicatDegr>");
@@ -117,10 +64,6 @@ public class TestApp {
 
 	private static void delete() {
 		System.out.println("TestApp <peerAp> DELETE <filePath>");
-	}
-
-	private static void reclaim() {
-		System.out.println("TestApp <peerAp> RECLAIM <diskSpace>");
 	}
 
 	private static void restore() {
