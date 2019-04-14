@@ -6,6 +6,17 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.Random;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 //import common.Utils;
 import core.Chunk;
@@ -24,7 +35,7 @@ public class MsgHandler implements Runnable{
 	@Override
 	public void run() {
 		
-		msgHeader = Utils.parseHeader(dataPacket);
+		msgHeader = parseHeader(dataPacket);
 		
 		int peerId = Integer.parseInt(msgHeader[2]);
 		
@@ -67,7 +78,7 @@ public class MsgHandler implements Runnable{
 		Chunk chunk = new Chunk(chunkNr, fileId, new byte[0], 0);
 		
 		
-		ArrayList<Chunk> chunks = Peer.getDisk().getStoredChunks();
+		ArrayList<Chunk> chunks = Peer.getDisk().getFiles();
 	
 			if(chunks.contains(chunk)) {
 			
@@ -122,7 +133,7 @@ public class MsgHandler implements Runnable{
 		String fileId = msgHeader[3];
 		int chunkNr = Integer.parseInt(msgHeader[4]);
 		int replication = Integer.parseInt(msgHeader[5]);
-		byte[] chunkData = Utils.parseBody(dataPacket); //TODO: chunkdata can be chunckbody??
+		byte[] chunkData = parseBody(dataPacket); 
 		
 		if(Peer.getMdr().isSaving(fileId)){
 			Chunk chunk = new Chunk(chunkNr,fileId, chunkData, replication);
@@ -144,7 +155,7 @@ public class MsgHandler implements Runnable{
 		
 		if(file.exists() && file.isFile()) {
 			try {
-				byte[] chunkData = Utils.loadFileBytes(file);
+				byte[] chunkData = loadFileBytes(file);
 				
 				Chunk chunk = new Chunk(chunkNr, fileId,chunkData,0);
 				
@@ -197,10 +208,10 @@ public class MsgHandler implements Runnable{
 		
 		String chunkId = fileId + "_" +chunkNr; 
 		
-		Peer.getMc().save(chunkId,peerId );
+		Peer.getMdb().save(chunkId,peerId );
 		
 		if(Peer.getFileSystem().isStored(new Chunk(chunkNr,fileId, new byte[0],0))) 
-			Peer.getFileSystem().incRepDegree(chunkId,Peer.getMc().getSaves(chunkId)+1);
+			Peer.getFileSystem().incReplication(chunkId,Peer.getMdb().getSaves(chunkId)+1);
 		
 		
 	}
@@ -214,7 +225,7 @@ public class MsgHandler implements Runnable{
 		int replication = Integer.parseInt(msgHeader[5]);
 		
 		// chunk data from body
-		byte[] chunkData =Utils.parseBody(dataPacket);
+		byte[] chunkData =parseBody(dataPacket);
 		
 		
 		// create chunk 
@@ -227,7 +238,7 @@ public class MsgHandler implements Runnable{
 		}
 		
 		// start saving STORED messages
-		Peer.getMc().startSave(chunk.getId());
+		Peer.getMdb().startSave(chunk.getId());
 		
 		// wait a random delay
 		Random rand = new Random();
@@ -241,10 +252,60 @@ public class MsgHandler implements Runnable{
 		
 		// send STORED message
 		Peer.getMsgForwarder().sendSTORED(chunk);
-		
-		
-		
 	}
+
+		public static byte[] loadFileBytes(File file) throws IOException  {
+			FileInputStream file_is = new FileInputStream(file);
+	
+			byte[] data = new byte[(int) file.length()];
+	
+			file_is.read(data);
+			file_is.close();
+	
+			return data;
+		}
+
+		public static String[] parseHeader(DatagramPacket packet) {
+		 
+			ByteArrayInputStream stream = new ByteArrayInputStream(packet.getData());
+		   BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+   
+		   String header = "";
+		   try {
+			   header = reader.readLine();
+		   } catch (IOException e) {
+			   e.printStackTrace();
+		   }
+   
+		   return header.split(" ");
+   
+	}
+	   
+	   public static byte[] parseBody(DatagramPacket packet) {
+		   
+			
+		   ByteArrayInputStream stream = new ByteArrayInputStream(packet.getData());
+		   BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+   
+		   String header="";
+		   
+		   
+		   try {
+			   header += reader.readLine();
+		   } catch (IOException e) {
+			   e.printStackTrace();
+		   }
+		   
+		   int body_idx = header.length()+2*MsgForwarder.CRLF.length();
+		   
+		   byte[] body = Arrays.copyOfRange(packet.getData(),body_idx ,
+				   packet.getLength());
+   
+		   
+		   return body;
+	}
+		
+		
 	
 	public class chunkFilter implements FilenameFilter {
 		

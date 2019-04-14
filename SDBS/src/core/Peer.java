@@ -78,9 +78,9 @@ public class Peer implements RMI {
 		msgForwarder = new MsgForwarder(version);
 		//----
 		ROOT += peerId + "/";
-		BACKUP += ROOT + "/";
-		RESTORED += ROOT + "/";
-		FILESYSTEM +=ROOT + "fs" + "peer"+ "peerId "+".data";
+		BACKUP = "peer" + peerId + "/backup";
+		RESTORED = "peer" + peerId + "/restored";
+		FILESYSTEM = "peer" + peerId + "/fs.data";
 		
 		loadFs();
 
@@ -187,23 +187,13 @@ public class Peer implements RMI {
 		return fs;
 	}
 
-  
-
-  
-
-  	private static boolean checkArguments(String[] arguments) throws UnknownHostException {
-  		if (arguments == null) {
-  			System.out.println("Invalid arguments - Expected: [<SenderId> <McAddress>:<McPortNumber> <MdbAddress>:<MdbPortNumber> <MdrAddress>:<MdrPortNumber>");
-  			return false;
-  		}
-  		if (arguments.length != 4) {
-  			System.out.println("Invalid arguments - Expected: [<SenderId> <McAddress>:<McPortNumber> <MdbAddress>:<MdbPortNumber> <MdrAddress>:<MdrPortNumber>");
-  			return false;
-  		}
-
-
-  		return true;
+	public static MsgForwarder getMsgForwarder(){
+		return msgForwarder;
 	}
+
+  
+
+  
 	  
 	public void backup(String fPath, int replication) throws RemoteException {
 		Backup init = new Backup(fPath, replication);

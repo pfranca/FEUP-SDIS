@@ -10,8 +10,7 @@ import java.io.IOException;
 
 public class FileSystem implements Serializable{
 
-    private static final long serialVersionUID = 1L; //TODO:
-
+    private static final long serialVersionUID = 1L;
     long occupied;
     long available;
     ArrayList<Chunk> files;
@@ -21,9 +20,9 @@ public class FileSystem implements Serializable{
         occupied = 0;
         available = 4 * 1000000; //4MBytes
 
-    File folder = new File("peer"+ Peer.getPeerId());
-    if (!(folder.exists() && folder.isDirectory()))
-        folder.mkdir();
+        File f1 = new File(Peer.BACKUP);
+    if (!(f1.exists() && f1.isDirectory()))
+        f1.mkdirs();
     }
 
     public long getOccupied(){
@@ -39,16 +38,20 @@ public class FileSystem implements Serializable{
         return (this.occupied + this.available);
     }
 
-    public boolean storeChunk(Chunk c){ //TODO: name
+    public boolean storeChunk(Chunk c){
         
         byte[] chunkBytes = c.getData();
         if((this.available - chunkBytes.length) < 0){
             return false;
         }
 
+        File f2= new File(Peer.BACKUP + "/" +c.getFileId());
+        if (!(f2.exists() && f2.isDirectory()))
+        f2.mkdirs();
+
         FileOutputStream out;
 		try {
-			out = new FileOutputStream(Peer.BACKUP + c.getId());
+			out = new FileOutputStream(Peer.BACKUP +"/"+c.getFileId()+"/chk"+ c.getChunkNr());
 			out.write(c.getData());
 			out.close();
 		} catch (FileNotFoundException e) {
@@ -58,51 +61,29 @@ public class FileSystem implements Serializable{
 			e.printStackTrace();
 			return false;
 		}
-		
-		// store in database
 		files.add(c);
 		
-		try {
-			Peer.saveDisk();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		try {Peer.saveFs();} catch (IOException e) {e.printStackTrace();}
 		
 		return true;
         
 
     }
-
-    //TODO: daqui pra baixo ta igual
-
     public boolean hasChunks() {
-		return files.size() >0;
+		return this.files.size() >0;
     }
     
-    public boolean isStored(Chunk chunk) {
-		return files.contains(chunk);
-	}
-
-
-	public ArrayList<Chunk> getStoredChunks() {
-		return files;
+    public boolean isStored(Chunk c) {
+		return this.files.contains(c);
     }
-    public void incRepDegree(String chunkId, int rep) {
-		
-		
+    
+    public void incReplication(String chunkId, int rep) {
 		for(int i=0; i< files.size();i++) {
 			if(files.get(i).getId().equals(chunkId)) {
 				files.get(i).setCurrentReplication(rep);
 			}
 		}
-		
-		try {
-			Peer.saveDisk();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		try {Peer.saveFs();} catch (IOException e) {e.printStackTrace();}
 	
 	}
 

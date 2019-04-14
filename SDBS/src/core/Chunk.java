@@ -76,7 +76,7 @@ public class Chunk implements Serializable{
     while (backedUp < this.replication && msgSentCnt != NR_TO_SEND){
       Peer.getMdb().startSave(this.id); //TODO: ver
 
-      //TODO: Peer.getMsgForwarder.sendPutchunk(THIS)
+      Peer.getMsgForwarder().sendPUTCHUNK(this);
       msgSentCnt += 1;
 
 

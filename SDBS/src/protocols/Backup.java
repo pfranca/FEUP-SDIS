@@ -25,6 +25,7 @@ public class Backup implements Runnable{
         byte[] fileData = loadFileBytes(f);
         String fileId = Utils.getFileID(f);
         int nrOfChunks= fileData.length / (Chunk.MAX) + 1;
+        System.out.print("POPOP");
 
         for(int i =0; i < nrOfChunks; i++) {
 				
